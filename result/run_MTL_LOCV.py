@@ -13,21 +13,16 @@ from sklearn.metrics import mean_absolute_percentage_error, root_mean_squared_er
 import random
 
 def set_seed(seed):
-    """设置随机种子，确保实验结果可重复
-
-    Args:
-        seed: 随机种子值
-    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)  # 多GPU情况下
+    torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
 
-# ===================== 1. 数据加载与归一化 =====================
+# ===================== 数据加载与归一化 =====================
 class EIS_SemiSupervised_Dataset(Dataset):
     def __init__(self, eis_arr, labels=None, feat_labels=None):
         self.eis_arr = torch.FloatTensor(eis_arr)
@@ -123,7 +118,7 @@ def get_eis_dataloaders(dataset, exp_name="EXP3", batch_size=32, num_workers=0):
     return train_loader, test_loader, scalers
 
 
-# ===================== 2. 训练与评估函数 =====================
+# ===================== 训练与评估函数 =====================
 def train_model(model, train_loader, optimizer, device, epochs=300):
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5, verbose=True)
 
@@ -158,15 +153,15 @@ def evaluate_model(model, test_loader, device):
     return np.array(y_true_all), np.array(y_pred_all)
 
 
-# ===================== 3. 主实验循环 =====================
+# ===================== 主实验循环 =====================
 if __name__ == '__main__':
     # ------------------- 实验配置 -------------------
     set_seed(42)
 
     # 实验参数
     num_labeled_cells_list = np.arange(6, 11, 2)
-    num_repeats = 20  # 每个标签数量重复50次
-    exp_name = "LOCV1"  # 选择实验组
+    num_repeats = 20  
+    exp_name = "LOCV1"  # 选择实验组,该实验组是45度工况下的电池训练，35和23度工况下的电池用于测试
     batch_size = 32
     epochs = 500
     lr = 1e-3
@@ -226,12 +221,12 @@ if __name__ == '__main__':
             print(f"RMSE: {root_mean_squared_error(y_true, y_pred):.4f}")
             print(f"MAPE: {mean_absolute_percentage_error(y_true, y_pred) * 100:.2f}")
 
-            # 8. 清理内存（关键！防止内存溢出）
+            # 8. 清理内存（防止内存溢出）
             del model, optimizer, train_loader, test_loader, raw_dataset, generator
             torch.cuda.empty_cache() if torch.cuda.is_available() else None
             gc.collect()
 
-        # 每完成一个标签数量的所有重复，保存一次结果（防止中途丢失）
+        # 每完成一个标签数量设置下的重复实验，保存一次结果
         joblib.dump(all_results, save_path_temp)
         print(f"\n标签数 {num_labeled_cell} 完成，中间结果已保存到 {save_path_temp}")
 
