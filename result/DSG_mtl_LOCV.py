@@ -141,8 +141,6 @@ class FewShotDSGenerator_ealy_cycle_LOCV:
                 # 去除掉soh为-1的样本，无效
                 eis_list, eis_image_list, y_list = filter_invalid_labels(eis_list, eis_image_list, y_list)
 
-                # =================================检查eis列表是否为空=====================================
-
                 # Extract features
                 f1 = extract_f1_features(eis_list)
                 f2_f3_list = [extract_f2_f3_features(item[:, 0], item[:, 1], cell_id) for item in eis_list]
@@ -249,7 +247,7 @@ class FewShotDSGenerator_ealy_cycle_LOCV:
 
 # 使用示例
 if __name__ == '__main__':
-    # 创建数据集生成器（不设置random_seed，每次运行随机选择不同样本）
+    # 创建数据集生成器
     generator = FewShotDSGenerator_ealy_cycle_LOCV(random_seed=1000, soc_filter=100)
 
     # 生成不同少样本数量的数据集
