@@ -5,8 +5,6 @@ import torch.nn.functional as F
 
 # ---------------------- 多头回归器 ----------------------
 class MultiHeadRegressor(nn.Module):
-    """极简多头回归器，固定输出3个连续特征，适配EIS数据任务"""
-
     def __init__(self, input_dim, hidden_dim=32, n_heads=3):
         super().__init__()
         # 共享隐藏层 + 多头输出
